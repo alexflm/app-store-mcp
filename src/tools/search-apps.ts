@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { searchApps } from "../api/index.js";
-import { DEFAULT_COUNTRY, DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../api/constants.js";
+import { config } from "../config.js";
 import { formatToolError } from "./error-handler.js";
 
 export const searchAppsTool = {
@@ -27,14 +27,14 @@ export const searchAppsTool = {
     country: z
       .string()
       .length(2)
-      .default(DEFAULT_COUNTRY)
+      .default(config.defaults.country)
       .describe("ISO 3166-1 alpha-2 country code — search rankings differ by market (e.g. us, gb, ru, jp, de)"),
     limit: z
       .number()
       .int()
       .min(1)
-      .max(MAX_SEARCH_LIMIT)
-      .default(DEFAULT_SEARCH_LIMIT)
+      .max(config.defaults.maxSearchLimit)
+      .default(config.defaults.searchLimit)
       .describe("Number of results to return (1–200). Use higher values to see deeper into search results."),
   }),
   execute: async (args: { term: string; country: string; limit: number }) => {

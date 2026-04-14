@@ -1,29 +1,24 @@
 import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from "axios";
 import { getAgent } from "../proxy.js";
 import { RateLimitError } from "./errors.js";
-import {
-  ITUNES_BASE_URL,
-  SEARCH_HINTS_BASE_URL,
-  REQUEST_TIMEOUT_MS,
-  RATE_LIMIT_STATUS_CODES,
-} from "./constants.js";
+import { config as appConfig } from "../config.js";
 
 let cliProxies: string[] = [];
 
 const commonConfig = {
-  timeout: REQUEST_TIMEOUT_MS,
+  timeout: appConfig.defaults.requestTimeoutMs,
   headers: {
     "Accept-Encoding": "gzip, deflate, br",
   },
 };
 
 export const itunes = axios.create({
-  baseURL: ITUNES_BASE_URL,
+  baseURL: appConfig.apple.itunesBaseUrl,
   ...commonConfig,
 });
 
 export const searchHints = axios.create({
-  baseURL: SEARCH_HINTS_BASE_URL,
+  baseURL: appConfig.apple.searchHintsBaseUrl,
   ...commonConfig,
 });
 
@@ -38,7 +33,7 @@ function attachInterceptors(instance: AxiosInstance): void {
     (error) => {
       if (axios.isAxiosError(error) && error.response) {
         const status = error.response.status;
-        if (RATE_LIMIT_STATUS_CODES.has(status)) {
+        if (appConfig.apple.rateLimitStatusCodes.has(status)) {
           const endpoint = error.config?.url ?? "unknown";
           throw new RateLimitError(status, endpoint);
         }

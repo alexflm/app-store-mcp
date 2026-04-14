@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { getAutocomplete } from "../api/index.js";
-import { DEFAULT_COUNTRY } from "../api/constants.js";
+import { config } from "../config.js";
 import { formatToolError } from "./error-handler.js";
 
 export const searchAutocompleteTool = {
@@ -27,7 +27,7 @@ export const searchAutocompleteTool = {
     country: z
       .string()
       .length(2)
-      .default(DEFAULT_COUNTRY)
+      .default(config.defaults.country)
       .describe("ISO 3166-1 alpha-2 country code — autocomplete results vary by market (e.g. us, gb, ru, jp, de)"),
   }),
   execute: async (args: { term: string; country: string }) => {

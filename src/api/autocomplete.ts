@@ -1,10 +1,6 @@
 import { searchHints } from "./client.js";
 import { STOREFRONTS } from "../storefronts.js";
-import {
-  SEARCH_HINTS_PATH,
-  HINTS_CLIENT_APPLICATION,
-  STOREFRONT_HEADER_SUFFIX,
-} from "./constants.js";
+import { config } from "../config.js";
 
 export function getStorefrontId(country: string): string {
   const id = STOREFRONTS[country.toLowerCase()];
@@ -22,9 +18,9 @@ export async function getAutocomplete(
 ): Promise<string[]> {
   const storefrontId = getStorefrontId(country);
 
-  const { data } = await searchHints.get<string>(SEARCH_HINTS_PATH, {
-    params: { clientApplication: HINTS_CLIENT_APPLICATION, term },
-    headers: { "X-Apple-Store-Front": `${storefrontId}${STOREFRONT_HEADER_SUFFIX}` },
+  const { data } = await searchHints.get<string>(config.apple.searchHintsPath, {
+    params: { clientApplication: config.apple.hintsClientApplication, term },
+    headers: { "X-Apple-Store-Front": `${storefrontId}${config.apple.storefrontHeaderSuffix}` },
     responseType: "text",
   });
 

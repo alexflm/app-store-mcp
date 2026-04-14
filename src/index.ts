@@ -7,7 +7,7 @@ import { appDetailsTool, searchAutocompleteTool, searchAppsTool } from "./tools/
 import { configure } from "./api/client.js";
 import { parseArgs } from "./args.js";
 import { runWithProxies, parseProxyString } from "./proxy.js";
-import { DEFAULT_PORT, PROXY_HEADER } from "./api/constants.js";
+import { config } from "./config.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkg = JSON.parse(readFileSync(resolve(__dirname, "..", "package.json"), "utf-8"));
@@ -57,7 +57,7 @@ server.addTool(searchAppsTool);
 const transport = process.env.MCP_TRANSPORT === "httpStream" ? "httpStream" : "stdio";
 
 if (transport === "httpStream") {
-  const port = parseInt(process.env.PORT || String(DEFAULT_PORT), 10);
+  const port = parseInt(process.env.PORT || String(config.defaults.port), 10);
 
   const app = server.getApp();
   app.use("/*", async (c, next) => {
@@ -65,7 +65,7 @@ if (transport === "httpStream") {
 
     const reqProxies: string[] = [];
 
-    const headerVal = c.req.header(PROXY_HEADER);
+    const headerVal = c.req.header(config.proxy.header);
     if (headerVal) {
       reqProxies.push(...parseProxyString(headerVal));
     }

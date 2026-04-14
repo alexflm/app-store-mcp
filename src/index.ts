@@ -1,10 +1,23 @@
+#!/usr/bin/env node
 import { FastMCP } from "fastmcp";
+import { readFileSync } from "node:fs";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { appDetailsTool, searchAutocompleteTool, searchAppsTool } from "./tools/index.js";
+import { configure } from "./api/client.js";
+import { parseArgs } from "./args.js";
 import { runWithProxies, parseProxyString } from "./proxy.js";
+import { DEFAULT_PORT, PROXY_HEADER } from "./api/constants.js";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const pkg = JSON.parse(readFileSync(resolve(__dirname, "..", "package.json"), "utf-8"));
+
+const { proxies } = parseArgs();
+configure({ proxies, version: pkg.version });
 
 const server = new FastMCP({
-  name: "app-store-mcp",
-  version: "0.1.0",
+  name: pkg.name,
+  version: pkg.version,
   instructions: `You are an ASO (App Store Optimization) research assistant with access to live App Store data.
 Your job is to help analyze keywords, competitors, and app positioning to improve App Store visibility.
 
@@ -44,28 +57,28 @@ server.addTool(searchAppsTool);
 const transport = process.env.MCP_TRANSPORT === "httpStream" ? "httpStream" : "stdio";
 
 if (transport === "httpStream") {
-  const port = parseInt(process.env.PORT || "8080", 10);
+  const port = parseInt(process.env.PORT || String(DEFAULT_PORT), 10);
 
   const app = server.getApp();
   app.use("/*", async (c, next) => {
     if (c.req.path === "/health") return next();
 
-    const proxies: string[] = [];
+    const reqProxies: string[] = [];
 
-    const headerVal = c.req.header("x-proxy");
+    const headerVal = c.req.header(PROXY_HEADER);
     if (headerVal) {
-      proxies.push(...parseProxyString(headerVal));
+      reqProxies.push(...parseProxyString(headerVal));
     }
 
     const queryVals = c.req.queries("proxy");
     if (queryVals) {
       for (const v of queryVals) {
-        proxies.push(...parseProxyString(v));
+        reqProxies.push(...parseProxyString(v));
       }
     }
 
-    if (proxies.length > 0) {
-      return runWithProxies(proxies, () => next());
+    if (reqProxies.length > 0) {
+      return runWithProxies(reqProxies, () => next());
     }
 
     return next();

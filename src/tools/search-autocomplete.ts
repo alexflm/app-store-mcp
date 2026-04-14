@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { getAutocomplete } from "../api/index.js";
+import { DEFAULT_COUNTRY } from "../api/constants.js";
 import { formatToolError } from "./error-handler.js";
 
 export const searchAutocompleteTool = {
@@ -21,11 +22,12 @@ export const searchAutocompleteTool = {
   parameters: z.object({
     term: z
       .string()
+      .min(1, "Search term must not be empty")
       .describe("The beginning of a search query to autocomplete — can be a partial word or full phrase"),
     country: z
       .string()
       .length(2)
-      .default("us")
+      .default(DEFAULT_COUNTRY)
       .describe("ISO 3166-1 alpha-2 country code — autocomplete results vary by market (e.g. us, gb, ru, jp, de)"),
   }),
   execute: async (args: { term: string; country: string }) => {

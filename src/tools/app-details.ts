@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { lookupApps } from "../api/index.js";
+import { DEFAULT_COUNTRY } from "../api/constants.js";
 import { formatToolError } from "./error-handler.js";
 
 export const appDetailsTool = {
@@ -20,13 +21,14 @@ export const appDetailsTool = {
   parameters: z.object({
     appId: z
       .string()
+      .regex(/^\d+(,\d+)*$/, "App Store IDs must be numeric, comma-separated (e.g. 544007664 or 544007664,389801252)")
       .describe(
         'One or more App Store IDs, comma-separated (e.g. "544007664" or "544007664,389801252")',
       ),
     country: z
       .string()
       .length(2)
-      .default("us")
+      .default(DEFAULT_COUNTRY)
       .describe("ISO 3166-1 alpha-2 country code — determines which storefront to query (e.g. us, gb, ru, jp, de)"),
   }),
   execute: async (args: { appId: string; country: string }) => {

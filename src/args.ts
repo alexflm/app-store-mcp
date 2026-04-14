@@ -1,3 +1,5 @@
+import { parseProxyString } from "./proxy.js";
+
 export interface CliArgs {
   proxies: string[];
 }
@@ -14,10 +16,7 @@ export function parseArgs(): CliArgs {
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === "--proxy" && i + 1 < args.length) {
-      const value = args[i + 1];
-      proxies.push(
-        ...value.split(",").map((s) => s.trim()).filter(Boolean),
-      );
+      proxies.push(...parseProxyString(args[i + 1]));
       i++;
     }
   }

@@ -1,11 +1,16 @@
 import { searchHints } from "./client.js";
 import { STOREFRONTS } from "../storefronts.js";
+import {
+  SEARCH_HINTS_PATH,
+  HINTS_CLIENT_APPLICATION,
+  STOREFRONT_HEADER_SUFFIX,
+} from "./constants.js";
 
 export function getStorefrontId(country: string): string {
   const id = STOREFRONTS[country.toLowerCase()];
   if (!id) {
     throw new Error(
-      `Unknown country code: "${country}". Supported: ${Object.keys(STOREFRONTS).join(", ")}`,
+      `Unknown country code: "${country}". Use a valid ISO 3166-1 alpha-2 code (e.g. us, gb, jp, de, ru).`,
     );
   }
   return id;
@@ -17,33 +22,33 @@ export async function getAutocomplete(
 ): Promise<string[]> {
   const storefrontId = getStorefrontId(country);
 
-  const { data } = await searchHints.get<string>(
-    "/WebObjects/MZSearchHints.woa/wa/hints",
-    {
-      params: { clientApplication: "Software", term },
-      headers: { "X-Apple-Store-Front": `${storefrontId}-1,29` },
-      responseType: "text",
-    },
-  );
+  const { data } = await searchHints.get<string>(SEARCH_HINTS_PATH, {
+    params: { clientApplication: HINTS_CLIENT_APPLICATION, term },
+    headers: { "X-Apple-Store-Front": `${storefrontId}${STOREFRONT_HEADER_SUFFIX}` },
+    responseType: "text",
+  });
 
   return parseHintsXml(data);
 }
 
-/**
- * Parse the XML plist from MZSearchHints into a list of term strings.
- *
- * Response structure:
- * <plist><dict><key>hints</key><array>
- *   <dict><key>term</key><string>...</string>...</dict>
- * </array></dict></plist>
- */
+function decodeXmlEntities(str: string): string {
+  return str
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+}
+
 function parseHintsXml(xml: string): string[] {
   const terms: string[] = [];
   const re = /<key>term<\/key>\s*<string>([^<]+)<\/string>/g;
   let match: RegExpExecArray | null;
 
   while ((match = re.exec(xml)) !== null) {
-    terms.push(match[1]);
+    terms.push(decodeXmlEntities(match[1]));
   }
 
   return terms;

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { searchApps } from "../api/index.js";
+import { DEFAULT_COUNTRY, DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../api/constants.js";
 import { formatToolError } from "./error-handler.js";
 
 export const searchAppsTool = {
@@ -21,18 +22,19 @@ export const searchAppsTool = {
   parameters: z.object({
     term: z
       .string()
+      .min(1, "Search term must not be empty")
       .describe("Search keyword or phrase — exactly what a user would type in the App Store search bar"),
     country: z
       .string()
       .length(2)
-      .default("us")
+      .default(DEFAULT_COUNTRY)
       .describe("ISO 3166-1 alpha-2 country code — search rankings differ by market (e.g. us, gb, ru, jp, de)"),
     limit: z
       .number()
       .int()
       .min(1)
-      .max(200)
-      .default(10)
+      .max(MAX_SEARCH_LIMIT)
+      .default(DEFAULT_SEARCH_LIMIT)
       .describe("Number of results to return (1–200). Use higher values to see deeper into search results."),
   }),
   execute: async (args: { term: string; country: string; limit: number }) => {

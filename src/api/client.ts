@@ -1,25 +1,29 @@
 import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from "axios";
 import { getAgent } from "../proxy.js";
-import { parseArgs } from "./args.js";
 import { RateLimitError } from "./errors.js";
+import {
+  ITUNES_BASE_URL,
+  SEARCH_HINTS_BASE_URL,
+  REQUEST_TIMEOUT_MS,
+  RATE_LIMIT_STATUS_CODES,
+} from "./constants.js";
 
-const { proxies: cliProxies } = parseArgs();
+let cliProxies: string[] = [];
 
 const commonConfig = {
-  timeout: 15_000,
+  timeout: REQUEST_TIMEOUT_MS,
   headers: {
-    "User-Agent": "app-store-mcp/0.1.0",
     "Accept-Encoding": "gzip, deflate, br",
   },
 };
 
 export const itunes = axios.create({
-  baseURL: "https://itunes.apple.com",
+  baseURL: ITUNES_BASE_URL,
   ...commonConfig,
 });
 
 export const searchHints = axios.create({
-  baseURL: "https://search.itunes.apple.com",
+  baseURL: SEARCH_HINTS_BASE_URL,
   ...commonConfig,
 });
 
@@ -34,7 +38,7 @@ function attachInterceptors(instance: AxiosInstance): void {
     (error) => {
       if (axios.isAxiosError(error) && error.response) {
         const status = error.response.status;
-        if (status === 403 || status === 429) {
+        if (RATE_LIMIT_STATUS_CODES.has(status)) {
           const endpoint = error.config?.url ?? "unknown";
           throw new RateLimitError(status, endpoint);
         }
@@ -46,3 +50,14 @@ function attachInterceptors(instance: AxiosInstance): void {
 
 attachInterceptors(itunes);
 attachInterceptors(searchHints);
+
+/**
+ * Configure the HTTP clients with runtime settings.
+ * Call once from the entry point before handling any requests.
+ */
+export function configure(opts: { proxies: string[]; version: string }): void {
+  cliProxies = opts.proxies;
+  const ua = `app-store-mcp/${opts.version}`;
+  itunes.defaults.headers.common["User-Agent"] = ua;
+  searchHints.defaults.headers.common["User-Agent"] = ua;
+}

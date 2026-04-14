@@ -1,0 +1,38 @@
+{
+  "name": "app-store-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for App Store Optimization — search apps, explore autocomplete, analyze competitors",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "app-store-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "npx fastmcp dev src/index.ts",
+    "inspect": "npx fastmcp inspect src/index.ts"
+  },
+  "keywords": [
+    "mcp",
+    "app-store",
+    "aso",
+    "app-store-optimization",
+    "keywords"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/punkpeye/app-store-mcp"
+  },
+  "dependencies": {
+    "axios": "^1.15.0",
+    "fastmcp": "^4.0.0",
+    "https-proxy-agent": "^9.0.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}

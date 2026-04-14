@@ -52,9 +52,15 @@ Add to `.cursor/mcp.json`:
 }
 ```
 
-### Manus / remote clients
+### Remote clients (Manus, Windsurf, etc.)
 
-Start the server in HTTP mode:
+Use the hosted instance or run your own:
+
+```
+https://app-store-mcp-5bty573mqq-uc.a.run.app/mcp
+```
+
+Or start locally in HTTP mode:
 
 ```bash
 MCP_TRANSPORT=httpStream PORT=8080 pnpm start
@@ -63,6 +69,14 @@ MCP_TRANSPORT=httpStream PORT=8080 pnpm start
 Then point your client to:
 - `http://your-host:8080/mcp` — HTTP Streaming
 - `http://your-host:8080/sse` — SSE (legacy)
+
+### Deploy to Cloud Run
+
+```bash
+gcloud builds submit --config=cloudbuild.yaml
+```
+
+Uses Kaniko for cached Docker builds. First deploy takes ~2 min, subsequent ones are faster.
 
 ## Proxy (optional)
 

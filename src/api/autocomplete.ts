@@ -27,7 +27,7 @@ export async function getAutocomplete(
   return parseHintsXml(data);
 }
 
-function decodeXmlEntities(str: string): string {
+export function decodeXmlEntities(str: string): string {
   return str
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
@@ -38,7 +38,7 @@ function decodeXmlEntities(str: string): string {
     .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCodePoint(parseInt(hex, 16)));
 }
 
-function parseHintsXml(xml: string): string[] {
+export function parseHintsXml(xml: string): string[] {
   const terms: string[] = [];
   const re = /<key>term<\/key>\s*<string>([^<]+)<\/string>/g;
   let match: RegExpExecArray | null;

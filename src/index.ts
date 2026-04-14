@@ -4,6 +4,8 @@ import { readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { appDetailsTool, searchAutocompleteTool, searchAppsTool } from "./tools/index.js";
+import { asoGuideResource, toolsReferenceResource, storefrontsResource, storefrontTemplate } from "./resources/index.js";
+import { keywordResearchPrompt, competitorAnalysisPrompt, alphabetCrawlPrompt, multiMarketScanPrompt } from "./prompts/index.js";
 import { configure } from "./api/client.js";
 import { parseArgs } from "./args.js";
 import { runWithProxies, parseProxyString } from "./proxy.js";
@@ -66,6 +68,16 @@ KEY PRINCIPLES:
 server.addTool(appDetailsTool);
 server.addTool(searchAutocompleteTool);
 server.addTool(searchAppsTool);
+
+server.addResource(asoGuideResource);
+server.addResource(toolsReferenceResource);
+server.addResource(storefrontsResource);
+server.addResourceTemplate(storefrontTemplate);
+
+server.addPrompt(keywordResearchPrompt);
+server.addPrompt(competitorAnalysisPrompt);
+server.addPrompt(alphabetCrawlPrompt);
+server.addPrompt(multiMarketScanPrompt);
 
 const transport = process.env.MCP_TRANSPORT === "httpStream" ? "httpStream" : "stdio";
 

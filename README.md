@@ -17,7 +17,7 @@ The three tools form a research loop: **discover** keywords → **check** compet
 ## Setup
 
 ```bash
-npm install && npm run build
+pnpm install && pnpm build
 ```
 
 ### Claude Desktop / Claude Code
@@ -57,7 +57,7 @@ Add to `.cursor/mcp.json`:
 Start the server in HTTP mode:
 
 ```bash
-MCP_TRANSPORT=httpStream PORT=8080 npm start
+MCP_TRANSPORT=httpStream PORT=8080 pnpm start
 ```
 
 Then point your client to:
